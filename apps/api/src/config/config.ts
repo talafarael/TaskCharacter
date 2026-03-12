@@ -4,5 +4,5 @@ export default () => ({
   database: {
     databaseUrl: process.env.DATABASE_URL,
   },
-  jwtSecret: process.env.JWT_SECRET || 'your-secret-key',
+  jwtSecret: process.env.JWT_SECRET,
 });

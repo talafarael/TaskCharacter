@@ -5,16 +5,14 @@ export class CreateStatsRepoDto {
   strength: number = 10;
   agility: number = 10;
   intelligence: number = 10;
-  characterId: Object;
+  characterId!: string;
   constructor(characterId: string, partial?: Partial<CreateStatsDto>) {
     if (!characterId) {
       throw new Error('characterId is required');
     }
+    this.characterId = characterId;
     if (partial) {
-      Object.assign(this, {
-        ...partial,
-        characterId: new Object(characterId),
-      });
+      Object.assign(this, partial);
     }
   }
 }

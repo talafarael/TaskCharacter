@@ -17,9 +17,9 @@ export class TasksService {
 
   async create(
     data: CreateTaskDto,
-    characrterId: string,
+    characterId: string,
   ): Promise<CreateTaskResponseDto> {
-    const taskData = new CreateTaskRepoDto(data, characrterId);
+    const taskData = new CreateTaskRepoDto(data, characterId);
 
     const newTask = await this.tasksRepository.create(taskData);
     const scheduledTime = await this.scheduledTimeService.create(

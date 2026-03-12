@@ -17,8 +17,8 @@ export class TasksController {
     return await this.tasksService.create(data, id);
   }
 
-  @Get('by-character/:characrterId')
-  async get(@Param('characrterId', ValidMongoIdPipe) id: string) { }
+  @Get('by-character/:characterId')
+  async get(@Param('characterId', ValidMongoIdPipe) id: string) { }
 
   @Get(':id')
   async getOne(@Param('id', ValidMongoIdPipe) id: string) { }

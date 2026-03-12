@@ -9,7 +9,6 @@ import config from './config/config';
 import { validate } from './config/env.validation';
 import { StatsModule } from './stats/stats.module';
 import { ScheduledTimeModule } from './scheduled-time/scheduled-time.module';
-import { ScheduledTimeModule } from './scheduled-time/scheduled-time.module';
 
 @Module({
   imports: [
