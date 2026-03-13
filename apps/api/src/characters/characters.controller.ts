@@ -28,11 +28,14 @@ export class CharactersController {
 
   @Get()
   async getAll(@Request() req: JwtPayloadDto) {
-    // return await this.charactersService.getAll(req.user.id);
+    return this.charactersService.getAll(req.user.id);
   }
 
   @Get(':id')
-  async getOne(@Param('id', ValidMongoIdPipe) id: string) {
-    return await this.charactersService.getOne(id);
+  async getOne(
+    @Param('id', ValidMongoIdPipe) id: string,
+    @Request() req: JwtPayloadDto,
+  ) {
+    return this.charactersService.getOne(id, req.user.id);
   }
 }

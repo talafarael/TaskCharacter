@@ -5,7 +5,7 @@ export class CreateStatsRepoDto {
   strength: number = 10;
   agility: number = 10;
   intelligence: number = 10;
-  characterId!: string;
+  characterId: string = '';
   constructor(characterId: string, partial?: Partial<CreateStatsDto>) {
     if (!characterId) {
       throw new Error('characterId is required');
