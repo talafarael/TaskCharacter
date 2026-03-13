@@ -21,6 +21,13 @@ export class CharactersRepository {
     });
   }
 
+  async findManyByUserId(userId: string): Promise<Character[]> {
+    return this.prismaService.character.findMany({
+      where: { userId },
+      include: { stats: true },
+    });
+  }
+
   async findOneById(id: string): Promise<Character> {
     const character = await this.prismaService.character.findUnique({
       where: { id },

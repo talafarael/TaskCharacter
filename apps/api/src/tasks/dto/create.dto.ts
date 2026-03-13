@@ -1,17 +1,19 @@
+import { Transform, Type } from 'class-transformer';
 import { IsOptional, IsString, ValidateNested } from 'class-validator';
 import {
   CreateScheduledTimeDto,
   ScheduledTimeResponseDto,
 } from '../../scheduled-time/dto/create.dto';
-import { Type } from 'class-transformer';
 
 export class CreateTaskDto {
   @IsString()
+  @Transform(({ value }: { value: string }) => value.trim())
   title: string;
 
   @IsString()
   @IsOptional()
-  description: string;
+  @Transform(({ value }: { value: string | undefined }) => value?.trim())
+  description?: string;
 
   @ValidateNested()
   @Type(() => CreateScheduledTimeDto)
