@@ -31,6 +31,16 @@ class EnvironmentVariables {
 
   @IsString()
   DATABASE_URL: string;
+
+  @IsNumber()
+  REDIS_PORT: number;
+
+  @IsString()
+  REDIS_HOST: string;
+
+  @IsString()
+  @IsOptional()
+  REDIS_PASSWORD: string;
 }
 
 export const validate = (config: Record<string, unknown>) => {

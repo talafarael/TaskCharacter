@@ -3,13 +3,16 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { PrismaModule } from './prisma/prisma.module';
-import { TasksModule } from './tasks/tasks.module';
+import { QuestTemplatesModule } from './quest-templates/quest-templates.module';
 import { CharactersModule } from './characters/characters.module';
 import config from './config/config';
 import { validate } from './config/env.validation';
 import { StatsModule } from './stats/stats.module';
 import { ScheduledTimeModule } from './scheduled-time/scheduled-time.module';
-import { ScheduledTimeModule } from './scheduled-time/scheduled-time.module';
+import { QuestsModule } from './quests/quests.module';
+import { RedisModule } from './redis/redis.module';
+import { CacheModule } from '@nestjs/cache-manager';
+import { RedisOptions } from './config/redis.config';
 
 @Module({
   imports: [
@@ -19,13 +22,16 @@ import { ScheduledTimeModule } from './scheduled-time/scheduled-time.module';
       load: [config],
       validate,
     }),
+    CacheModule.registerAsync(RedisOptions),
     AuthModule,
     UsersModule,
     PrismaModule,
-    TasksModule,
+    QuestTemplatesModule,
     CharactersModule,
     StatsModule,
     ScheduledTimeModule,
+    QuestsModule,
+    RedisModule,
   ],
 })
 export class AppModule { }

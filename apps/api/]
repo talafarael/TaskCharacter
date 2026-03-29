@@ -1,0 +1,13 @@
+export function dec<T>(field: string) {
+  return function(
+    target: any,
+    propertyKey: string,
+    descriptor: PropertyDescriptor,
+  ) {
+    const originalMethod = descriptor.value;
+
+    descriptor.value = function(...args: any[]) {
+      console.log(args);
+    };
+  };
+}

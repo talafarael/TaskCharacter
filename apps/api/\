@@ -1,0 +1,32 @@
+import { RedisService } from '../redis.service';
+
+export function Cached<T extends Object | string>(
+  cacheKey: string,
+  value: keyof T,
+  opts?: { ttl?: number },
+) {
+  return function(
+    _target: object,
+    _propertyKey: string,
+    descriptor: PropertyDescriptor,
+  ) {
+    const original = descriptor.value;
+    descriptor.value = async function(
+      this: { redisService: RedisService },
+      ...args: T[]
+    ) {
+      let cacheKeyValue;
+      if (args instanceof Object) {
+        cacheKeyValue = `${cacheKey}:${args[0][value]}`;
+      }
+      cacheKeyValue = `${cacheKey}:${firstArg}`;
+      const hit = await this.redisService.get(cacheKeyValue);
+
+      if (hit !== undefined) return hit;
+      const result = await original.apply(this, args);
+      await this.redisService.set(cacheKeyValue, result, opts);
+      return result;
+    };
+    return descriptor;
+  };
+}

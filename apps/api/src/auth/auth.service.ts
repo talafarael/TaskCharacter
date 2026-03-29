@@ -2,14 +2,15 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UsersRepository } from '../users/users.repositories';
-import { AuthUserDto } from './dto';
+import { AuthUserDto } from './dto/response/auth-user.dto';
+import { RegisterDto } from './dto/request/register.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersRepository: UsersRepository,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
   async validateUser(email: string, password: string) {
     const user = await this.usersRepository.findOneByEmail(email);
@@ -26,14 +27,14 @@ export class AuthService {
     return this.createToken(user.id, user.email);
   }
 
-  async register(email: string, password: string) {
+  async register(data: RegisterDto) {
     const existing = await this.usersRepository.findOneByEmail(email);
     if (existing) {
       throw new ConflictException('Email already registered');
     }
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(data.password, 10);
     const user = await this.usersRepository.create({
-      email,
+      ...data,
       password: hashedPassword,
     });
     return this.createToken(user.id, user.email);

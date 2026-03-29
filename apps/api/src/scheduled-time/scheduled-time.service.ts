@@ -1,10 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ScheduledTimeRepository } from './scheduled-time.repositories';
-import {
-  CreateScheduledTimeDto,
-  CreateScheduledTimeRepoDto,
-  ScheduledTimeResponseDto,
-} from './dto/create.dto';
+import { CreateScheduledTimeDto } from './dto/request/create.dto';
+import { ScheduledTimeResponseDto } from './dto/response/scheduled-time.dto';
 
 @Injectable()
 export class ScheduledTimeService {
@@ -14,11 +11,12 @@ export class ScheduledTimeService {
 
   async create(
     data: CreateScheduledTimeDto,
-    taskId: string,
+    questTemplateId: string,
   ): Promise<ScheduledTimeResponseDto> {
-    const scheduledTimeData = new CreateScheduledTimeRepoDto(data, taskId);
-    const scheduledTime =
-      await this.scheduledTimeRepository.create(scheduledTimeData);
+    const scheduledTime = await this.scheduledTimeRepository.create({
+      ...data,
+      questTemplateId,
+    });
     return scheduledTime;
   }
 }

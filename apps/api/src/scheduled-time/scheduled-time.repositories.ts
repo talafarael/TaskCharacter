@@ -1,9 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import {
-  CreateScheduledTimeDto,
-  CreateScheduledTimeRepoDto,
-} from './dto/create.dto';
+import { CreateScheduledTimeRepoDto } from './dto/repositories/create.dto';
 import { ScheduledTime } from '@prisma/client';
 
 @Injectable()

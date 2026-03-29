@@ -13,7 +13,6 @@ export class CreateStatsRepoDto {
     if (partial) {
       Object.assign(this, {
         ...partial,
-        characterId: new Object(characterId),
       });
     }
   }

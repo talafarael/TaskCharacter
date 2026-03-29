@@ -15,7 +15,8 @@ datasource db {
 
 enum ScheduleType {
   ONE_TIME
-  RECURRING
+  WEEKLY
+  TWO_WEEKLY
 }
 
 enum Day {
@@ -26,6 +27,11 @@ enum Day {
   THURSDAY
   FRIDAY
   SATURDAY
+}
+
+type ScheduleSlot {
+  day       Day
+  timeSlots String[]
 }
 
 model User {
@@ -39,7 +45,7 @@ model User {
 
 model Character {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  tasks       Task[]
+  questTemplates QuestTemplate[]
   name       String
   stats       Stats?
 
@@ -60,27 +66,42 @@ model Stats {
   character      Character @relation(fields: [characterId], references: [id])
 }
 
-model Task {
+model QuestTemplate {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   title       String
   description String?
-  isCompleted Boolean  @default(false)
   scheduledTime ScheduledTime?
+  lastUsed DateTime?
+
+  questInstances Quest[]
 
   characterId String   @db.ObjectId
   character   Character @relation(fields: [characterId], references: [id])
 }
 
+model Quest {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  isCompleted Boolean @default(false)
+  completedAt DateTime?
 
-model ScheduledTime {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  day         Day[]
-  time        DateTime[]
-  timeSlots   String[]
-  type        ScheduleType
-
-  taskId      String   @unique  @db.ObjectId
-  task        Task     @relation(fields: [taskId], references: [id])
+  questTemplateId String @db.ObjectId
+  questTemplate   QuestTemplate @relation(fields: [questTemplateId], references: [id])
 }
 
 
+type SpecificDate {
+  // id     String @id @default(auto()) @map("_id") @db.ObjectId
+  date   DateTime
+  // scheduledTimeId String @db.ObjectId
+  // scheduledTime   ScheduledTime @relation(fields: [scheduledTimeId], references: [id])
+}
+
+model ScheduledTime {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  type   ScheduleType
+  specificDates SpecificDate[]
+  scheduleSlots ScheduleSlot[]
+
+  questTemplateId String @unique @db.ObjectId
+  questTemplate   QuestTemplate @relation(fields: [questTemplateId], references: [id])
+}
