@@ -28,24 +28,29 @@ export class RedisService {
     opts?: RedisCacheOptions<keyof TData>,
   ): Promise<'OK' | TData | undefined> {
     const key = this.createCacheKey(keyParam);
-    return await this.cacheManager.set(key, value, opts?.ttl);
+    const createdCache = await this.cacheManager.set(key, value, opts?.ttl);
+
+    await this.setByIndex<TData>(keyParam, key, opts);
+
+    return createdCache;
   }
 
-  async addIndexing<TData>(
+  async setByIndex<TData>(
     keyParam: RedisCacheKey,
-    value: TData,
     key: string,
-    opts: RedisCacheIndexOptions<keyof TData>,
-  ): Promise<string | undefined> {
-    if (!(value instanceof Object)) return;
-
-    const indexKey = this.createCacheKey({
-      ...keyParam,
-      fieldType: String(opts.index),
-      keyValue: String(value[opts.index]),
-    });
-
-    return await this.cacheManager.set(indexKey, key, opts?.ttl);
+    opts?: RedisCacheOptions<keyof TData>,
+  ) {
+    for (const index of keyParam.index ?? []) {
+      const indexKey = this.createCacheKey({
+        ...keyParam,
+        index,
+      });
+      await this.cacheManager.set(indexKey, key, opts?.ttl);
+    }
+  }
+  async get<TData>(keyParam: RedisCacheKey): Promise<TData | undefined> {
+    const key = this.createCacheKey(keyParam);
+    return await this.cacheManager.get(key);
   }
 
   async getByIndex<TData>(keyParam: RedisCacheKey): Promise<TData | undefined> {

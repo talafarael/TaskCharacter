@@ -1,32 +1,69 @@
-import { RedisService } from '../redis.service';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Inject, Injectable } from '@nestjs/common';
+import type { Cache } from 'cache-manager';
+import {
+  RedisCacheIndexOptions,
+  RedisCacheKey,
+  RedisCacheOptions,
+} from './types/redis.type';
 
-export function Cached<T extends Object | string>(
-  cacheKey: string,
-  value: keyof T,
-  opts?: { ttl?: number },
-) {
-  return function(
-    _target: object,
-    _propertyKey: string,
-    descriptor: PropertyDescriptor,
+@Injectable()
+export class RedisService {
+  constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) { }
+
+  createCacheKey(keyParam: RedisCacheKey): string {
+    const { namespace, fieldType, keyValue, index } = keyParam;
+    return index
+      ? `${namespace}:${fieldType}:${keyValue}`
+      : `${namespace}:${index}:${fieldType}:${keyValue}`;
+  }
+
+  async del(key: string): Promise<boolean> {
+    return this.cacheManager.del(key);
+  }
+
+  async setKey<TData>(
+    keyParam: RedisCacheKey,
+    value: TData,
+    opts?: RedisCacheOptions<keyof TData>,
+  ): Promise<'OK' | TData | undefined> {
+    const key = this.createCacheKey(keyParam);
+    const createdCache = await this.cacheManager.set(key, value, opts?.ttl);
+
+    await this.setByIndex<TData>(keyParam, key, opts);
+
+    return createdCache;
+  }
+
+  async setByIndex<TData>(
+    keyParam: RedisCacheKey,
+    key: string,
+    opts?: RedisCacheOptions<keyof TData>,
   ) {
-    const original = descriptor.value;
-    descriptor.value = async function(
-      this: { redisService: RedisService },
-      ...args: T[]
-    ) {
-      let cacheKeyValue;
-      if (args instanceof Object) {
-        cacheKeyValue = `${cacheKey}:${args[0][value]}`;
-      }
-      cacheKeyValue = `${cacheKey}:${firstArg}`;
-      const hit = await this.redisService.get(cacheKeyValue);
+    for (const index of keyParam.index ?? []) {
+      const indexKey = this.createCacheKey({
+        ...keyParam,
+        index,
+      });
+      await this.cacheManager.set(indexKey, key, opts?.ttl);
+    }
+  }
+  async get<TData>(keyParam: RedisCacheKey): Promise<TData | undefined> {
+    const key = this.createCacheKey(keyParam);
+    return await this.cacheManager.get(key);
+  }
 
-      if (hit !== undefined) return hit;
-      const result = await original.apply(this, args);
-      await this.redisService.set(cacheKeyValue, result, opts);
-      return result;
-    };
-    return descriptor;
-  };
+  async getByIndex<TData>(keyParam: RedisCacheKey): Promise<TData | undefined> {
+    const key = this.createCacheKey(keyParam);
+    return await this.cacheManager.get(key);
+  }
+
+  async getByIndexes<TData>(
+    keyParam: RedisCacheKey,
+  ): Promise<TData | undefined> {
+    const indexKey = this.createCacheKey(keyParam);
+    const key = await this.cacheManager.get(indexKey);
+    if (!key) return;
+    return await this.cacheManager.get(String(key));
+  }
 }
