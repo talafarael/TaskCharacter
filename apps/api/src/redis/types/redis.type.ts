@@ -1,25 +1,34 @@
-export type RedisCacheKey = {
+export type RedisCache<T> = {
+  keyParam: RedisCacheKey<T>;
+  searchKeyParam: RedisCacheSearchKey<T>;
+  options: RedisCacheOptions;
+};
+
+export type RedisSetCache<T> = RedisCache<T> & {
+  value: T;
+};
+
+export type RedisCacheKey<T> = {
   namespace: string;
-  fieldType: string;
+  fieldType: keyof T;
+  // keyValue: string;
+
+  indexes: (keyof T)[];
+};
+
+export type RedisCacheSearchKey<T> = {
+  namespace: string;
+  fieldType: keyof T;
+  useIndex: boolean;
   keyValue: string;
-  index?: string;
 };
 
-export type RedisCacheDecoraterKey<T> = {
-  namespace: string;
-  fieldType: string;
-  valueField: keyof T;
-
-  indexSearch?: string;
-  indexs: (keyof T)[];
-};
-
-export type RedisCacheOptions<T> = {
+export type RedisCacheOptions = {
   ttl?: number;
-  indexs?: T[];
 };
 
-export type RedisCacheIndexOptions<T> = {
-  ttl?: number;
-  index: T;
+export type RedisCacheDecorator<T> = {
+  keyParam: RedisCacheKey<T>;
+  searchKeyParam: Omit<RedisCacheSearchKey<T>, 'keyValue'>;
+  options: RedisCacheOptions;
 };
